@@ -1,1 +1,1 @@
-# django-group-project
+# django-group-projectAnvar tomonidan test ozgartirish
