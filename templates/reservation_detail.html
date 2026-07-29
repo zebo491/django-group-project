@@ -1,0 +1,128 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Bron malumotlari - Restaurant</title>
+    <link rel="stylesheet" href="{% static 'css/normalize.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{% static 'favicon-1.ico' %}" type="image/x-icon">
+</head>
+<body style="background:#f4f4f4;">
+
+    <div class="container" style="max-width:700px; margin-top:40px; margin-bottom:40px;">
+        <div style="background:#fff; padding:30px; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,0.1);">
+
+            <h1 style="margin-top:0;">Sizning broningiz</h1>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="reservation-alert-success">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <p>
+                <strong>Holati:</strong>
+                {% if reservation.status == "pending" %}
+                    <span style="color:#f0ad4e;">Kutilmoqda</span>
+                {% elif reservation.status == "confirmed" %}
+                    <span style="color:#5cb85c;">Tasdiqlangan</span>
+                {% else %}
+                    <span style="color:#d9534f;">Bekor qilingan</span>
+                {% endif %}
+            </p>
+
+            {% if reservation.status != "cancelled" %}
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Ism Familya</label>
+                        {{ form.full_name }}
+                    </div>
+                    <div class="col-md-6">
+                        <label>Email</label>
+                        {{ form.email }}
+                    </div>
+                </div>
+                <div class="row" style="margin-top:10px;">
+                    <div class="col-md-6">
+                        <label>Telefon</label>
+                        {{ form.phone }}
+                    </div>
+                    <div class="col-md-6">
+                        <label>Mehmonlar soni</label>
+                        {{ form.guest_count }}
+                    </div>
+                </div>
+                <div class="row" style="margin-top:10px;">
+                    <div class="col-md-6">
+                        <label>Sana</label>
+                        {{ form.reservation_date }}
+                    </div>
+                    <div class="col-md-6">
+                        <label>Vaqt</label>
+                        {{ form.reservation_time }}
+                    </div>
+                </div>
+                <div class="row" style="margin-top:10px;">
+                    <div class="col-md-12">
+                        <label>Sharh</label>
+                        {{ form.comment }}
+                    </div>
+                </div>
+
+                <div style="margin-top:15px;">
+                    <label>Tanlangan taomlar:</label>
+                    <ul class="cart-items-list">
+                        {% for item in reservation.menu_items.all %}
+                        <li class="cart-item">
+                            <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                            <span class="cart-item-name">{{ item.name }}</span>
+                            <span class="cart-item-price">${{ item.price }}</span>
+                        </li>
+                        {% endfor %}
+                        {% for item in reservation.beer_items.all %}
+                        <li class="cart-item">
+                            <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                            <span class="cart-item-name">{{ item.name }}</span>
+                            {% if item.price %}<span class="cart-item-price">${{ item.price }}</span>{% endif %}
+                        </li>
+                        {% endfor %}
+                        {% for item in reservation.breakfast_items.all %}
+                        <li class="cart-item">
+                            <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                            <span class="cart-item-name">{{ item.name }}</span>
+                            <span class="cart-item-price">${{ item.price }}</span>
+                        </li>
+                        {% endfor %}
+                        {% if not reservation.menu_items.all and not reservation.beer_items.all and not reservation.breakfast_items.all %}
+                        <li class="cart-empty">Taom tanlanmagan</li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <div style="margin-top:20px; display:flex; gap:10px;">
+                    <button type="submit" name="save" class="btn-readmore">Tahrirlashni saqlash</button>
+                    <button type="submit" name="cancel" value="1" class="btn-readmore" style="background:#777;"
+                            onclick="return confirm('Bronni bekor qilishga ishonchingiz komilmi?');">
+                        Bronni bekor qilish
+                    </button>
+                </div>
+            </form>
+            {% else %}
+            <p>Bu bron bekor qilingan. Yangi bron qilish uchun bosh sahifaga qayting.</p>
+            <a href="{% url 'home' %}" class="btn-readmore">Bosh sahifaga qaytish</a>
+            {% endif %}
+
+        </div>
+    </div>
+
+</body>
+</html>
+
