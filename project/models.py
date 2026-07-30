@@ -171,4 +171,3 @@ class Reservation(models.Model):
         verbose_name_plural = "Bronlar"
         ordering = ["-created_at"]
 
-        

@@ -1,5 +1,8 @@
 from datetime import date
 from django import forms
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.models import User
+
 from .models import Reservation, WorkingHours
 
 
@@ -52,4 +55,49 @@ class ReservationForm(forms.ModelForm):
                         f"Bu vaqtda biz ishlamaymiz. Ish vaqti: {wh.open_time.strftime('%H:%M')} - {wh.close_time.strftime('%H:%M')}."
                     )
         return cleaned
-    
+
+
+class RegisterForm(UserCreationForm):
+    """Faqat gmail.com pochtasi bilan royxatdan otish."""
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={"placeholder": "Gmail manzilingiz"})
+    )
+
+    class Meta:
+        model = User
+        fields = ["username", "email", "password1", "password2"]
+        widgets = {
+            "username": forms.TextInput(attrs={"placeholder": "Username"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs.setdefault("class", "form")
+        self.fields["password1"].widget.attrs["placeholder"] = "Parol"
+        self.fields["password2"].widget.attrs["placeholder"] = "Parolni takrorlang"
+
+    def clean_email(self):
+        email = self.cleaned_data.get("email", "").strip()
+        if not email.lower().endswith("@gmail.com"):
+            raise forms.ValidationError("Faqat @gmail.com pochta manzili qabul qilinadi.")
+        if User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError("Bu email bilan foydalanuvchi allaqachon royxatdan otgan.")
+        return email
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data["email"]
+        if commit:
+            user.save()
+        return user
+
+
+class StyledAuthenticationForm(AuthenticationForm):
+    """Login formasi, saytga mos stil bilan."""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["username"].widget.attrs.update({"class": "form", "placeholder": "Username"})
+        self.fields["password"].widget.attrs.update({"class": "form", "placeholder": "Parol"})
+        

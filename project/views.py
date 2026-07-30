@@ -1,17 +1,16 @@
-import json
 from datetime import datetime
-
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST, require_http_methods
 from django.contrib import messages
+from django.contrib.auth import login
 
 from .models import (
     SiteAbout, Category, MenuItem, BeerItem,
     BreakfastCategory, WorkingHours, Reservation
 )
-from .forms import ReservationForm
+from .forms import ReservationForm, RegisterForm
 
 
 def home(request):
@@ -23,7 +22,6 @@ def home(request):
     working_hours = WorkingHours.objects.all().order_by("day")
     form = ReservationForm()
 
-    # Breakfast malumotlarini JS uchun toza JSON strukturasiga aylantiramiz
     breakfast_data = {}
     for cat in breakfast_categories:
         breakfast_data[str(cat.id)] = {
@@ -53,15 +51,39 @@ def home(request):
     return render(request, "index.html", context)
 
 
+def register_view(request):
+    if request.user.is_authenticated:
+        return redirect("home")
+
+    if request.method == "POST":
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, "Royxatdan otish muvaffaqiyatli yakunlandi! Endi buyurtma bera olasiz.")
+            return redirect("home")
+    else:
+        form = RegisterForm()
+
+    return render(request, "register.html", {"form": form})
+
+
 @require_POST
 def create_reservation(request):
-    """AJAX orqali yangi bron yaratish. JSON javob qaytaradi."""
+    """AJAX orqali yangi bron yaratish. Faqat royxatdan otgan foydalanuvchilar uchun."""
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            "success": False,
+            "errors": {"__all__": ["Buyurtma berish uchun avval royxatdan oting yoki tizimga kiring."]},
+            "auth_required": True,
+        }, status=401)
+
     form = ReservationForm(request.POST)
     if form.is_valid():
         reservation = form.save()
         return JsonResponse({
             "success": True,
-            "message": "Joy muvaffaqiyatli bron qilindi! Bron holatini kuzatish uchun havolani saqlab qoying.",
+            "message": "Joy muvaffaqiyatli bron qilindi! Bron holatini kuzatish yoki bekor qilish uchun havoladan foydalaning.",
             "token": str(reservation.token),
             "detail_url": f"/reservation/{reservation.token}/",
         })
@@ -131,5 +153,3 @@ def check_working_hours(request):
         "open_time": wh.open_time.strftime("%H:%M") if wh.open_time else None,
         "close_time": wh.close_time.strftime("%H:%M") if wh.close_time else None,
     })
-
-

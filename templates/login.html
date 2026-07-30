@@ -1,0 +1,47 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Kirish - Restaurant</title>
+    <link rel="stylesheet" href="{% static 'css/normalize.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{% static 'favicon-1.ico' %}" type="image/x-icon">
+</head>
+<body style="background:#1a1a1a; min-height:100vh;">
+
+    <div class="container" style="max-width:420px; margin-top:60px;">
+        <div class="auth-card">
+            <h1 class="text-center" style="margin-top:0;">Tizimga <span style="color:#b81818;">kirish</span></h1>
+
+            {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}
+                    <div class="reservation-alert-error">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="auth-field">
+                    {{ form.username }}
+                </div>
+                <div class="auth-field">
+                    {{ form.password }}
+                </div>
+                <input type="hidden" name="next" value="{{ next }}">
+
+                <button type="submit" class="btn-readmore" style="width:100%; margin-top:10px;">Kirish</button>
+            </form>
+
+            <p class="text-center" style="margin-top:20px;">
+                Akkountingiz yoqmi? <a href="{% url 'register' %}" class="color_animation" style="color:#b81818;">Royxatdan otish</a>
+            </p>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -48,6 +48,18 @@
                                     <i class="fa fa-shopping-basket"></i> <span id="cart-count">0</span>
                                 </a>
                             </li>
+                            {% if user.is_authenticated %}
+                            <li class="nav-user-info"><span class="color_animation"><i class="fa fa-user"></i> {{ user.username }}</span></li>
+                            <li>
+                                <form action="{% url 'logout' %}" method="post" class="logout-form">
+                                    {% csrf_token %}
+                                    <button type="submit" class="color_animation logout-btn">CHIQISH</button>
+                                </form>
+                            </li>
+                            {% else %}
+                            <li><a class="color_animation" href="{% url 'login' %}">KIRISH</a></li>
+                            <li><a class="color_animation" href="{% url 'register' %}">ROYXATDAN OTISH</a></li>
+                            {% endif %}
                         </ul>
                     </div>
                 </div>
@@ -105,6 +117,28 @@
                 <h1><span>Affordable</span> pricing</h1>
              </div>
             <div class="text-content container">
+
+                {% if menu_items %}
+                <div id="pricingCarousel" class="carousel slide pricing-carousel" data-ride="carousel" data-interval="2500">
+                    <ol class="carousel-indicators">
+                        {% for item in menu_items %}
+                        <li data-target="#pricingCarousel" data-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}"></li>
+                        {% endfor %}
+                    </ol>
+                    <div class="carousel-inner">
+                        {% for item in menu_items %}
+                        <div class="item {% if forloop.first %}active{% endif %}">
+                            <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                            <div class="pricing-carousel-caption">
+                                <h3>{{ item.name }}</h3>
+                                <span class="pricing-carousel-price">${{ item.price }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
                 <div class="container">
                     <div class="row">
                         <div id="w">
@@ -378,6 +412,9 @@
             window.CSRF_TOKEN = "{{ csrf_token }}";
             window.CREATE_RESERVATION_URL = "{% url 'create_reservation' %}";
             window.CHECK_HOURS_URL = "{% url 'check_working_hours' %}";
+            window.IS_AUTHENTICATED = {% if user.is_authenticated %}true{% else %}false{% endif %};
+            window.REGISTER_URL = "{% url 'register' %}";
+            window.LOGIN_URL = "{% url 'login' %}";
         </script>
         <script type="text/javascript" src="{% static 'js/restaurant.js' %}"></script>
 

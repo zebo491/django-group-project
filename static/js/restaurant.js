@@ -12,6 +12,18 @@
         return -1;
     }
 
+    // Mahsulot qoshishdan oldin royxatdan otganini tekshiradi
+    function requireAuth() {
+        if (!window.IS_AUTHENTICATED) {
+            var goRegister = confirm("Buyurtma berish uchun avval royxatdan oting. Royxatdan otish sahifasiga otilsinmi?");
+            if (goRegister) {
+                window.location.href = window.REGISTER_URL;
+            }
+            return false;
+        }
+        return true;
+    }
+
     function addToCart(item, qty) {
         qty = qty || 1;
         var idx = findInCart(item.id, item.type);
@@ -206,6 +218,7 @@
     }
     if (modalAddBtn) {
         modalAddBtn.addEventListener("click", function () {
+            if (!requireAuth()) return;
             if (currentModalItem) {
                 addToCart(currentModalItem, currentModalQty);
                 closeModal();
@@ -244,6 +257,7 @@
                     "</div>";
 
                 col.querySelector(".breakfast-add-btn").addEventListener("click", function () {
+                    if (!requireAuth()) return;
                     addToCart({
                         id: item.id,
                         type: "breakfast",
@@ -323,6 +337,8 @@
         reservationForm.addEventListener("submit", function (e) {
             e.preventDefault();
 
+            if (!requireAuth()) return;
+
             if (cart.length === 0) {
                 showAlert("Iltimos, kamida bitta taom tanlang.", "error");
                 return;
@@ -351,10 +367,18 @@
                 .then(function (res) { return res.json().then(function (data) { return { status: res.status, data: data }; }); })
                 .then(function (result) {
                     if (result.data.success) {
-                        showAlert(result.data.message, "success");
+                        showAlertHtml(
+                            result.data.message + ' <a href="' + result.data.detail_url + '" style="color:#155724;text-decoration:underline;font-weight:bold;">Bronni korish / bekor qilish</a>',
+                            "success"
+                        );
                         reservationForm.reset();
                         cart = [];
                         renderCart();
+                    } else if (result.data.auth_required) {
+                        showAlertHtml(
+                            'Buyurtma berish uchun avval <a href="' + window.LOGIN_URL + '" style="color:#721c24;text-decoration:underline;font-weight:bold;">tizimga kiring</a> yoki <a href="' + window.REGISTER_URL + '" style="color:#721c24;text-decoration:underline;font-weight:bold;">royxatdan oting</a>.',
+                            "error"
+                        );
                     } else {
                         var msgs = [];
                         for (var field in result.data.errors) {
@@ -379,6 +403,39 @@
         alertBox.style.display = "block";
         alertBox.scrollIntoView({ behavior: "smooth", block: "center" });
     }
+
+    function showAlertHtml(html, type) {
+        if (!alertBox) return;
+        alertBox.innerHTML = html;
+        alertBox.className = type === "success" ? "reservation-alert-success" : "reservation-alert-error";
+        alertBox.style.display = "block";
+        alertBox.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    // ============ PRICING FILTER (own JS, does not depend on jquery.mixitup) ============
+    var filterButtons = document.querySelectorAll("#filter-list .filter");
+    var portfolioItems = document.querySelectorAll("#portfolio .item");
+
+    // Sahifa yuklanganda hamma taom korinadigan holatga keltiramiz
+    portfolioItems.forEach(function (item) {
+        item.classList.remove("filtered-hidden");
+    });
+
+    filterButtons.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            filterButtons.forEach(function (b) { b.classList.remove("active"); });
+            this.classList.add("active");
+            var filter = this.getAttribute("data-filter");
+
+            portfolioItems.forEach(function (item) {
+                if (filter === "all" || item.classList.contains(filter)) {
+                    item.classList.remove("filtered-hidden");
+                } else {
+                    item.classList.add("filtered-hidden");
+                }
+            });
+        });
+    });
 
     renderCart();
 })();
