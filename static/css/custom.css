@@ -516,3 +516,127 @@ footer a:hover {
     font-size: 20px;
 }
 
+/* ===================== AUTH PAGES (login/register) ===================== */
+
+.auth-card {
+    background: #fff;
+    padding: 35px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.auth-field {
+    margin-bottom: 14px;
+}
+
+.auth-field input {
+    width: 100%;
+}
+
+.field-error {
+    color: #b81818;
+    font-size: 13px;
+    margin-top: 4px;
+}
+
+/* ===================== NAVBAR USER INFO ===================== */
+
+.nav-user-info span {
+    color: #ccc !important;
+    cursor: default;
+}
+
+.nav-user-info span:hover {
+    transform: none !important;
+}
+
+/* ===================== NAVBAR LOGOUT (POST form styled as link) ===================== */
+
+.logout-form {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+}
+
+.logout-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    letter-spacing: inherit;
+    cursor: pointer;
+}
+
+/* ===================== PRICING: RELIABLE SHOW/HIDE (replaces broken mixitup) ===================== */
+
+#portfolio .item {
+    display: inline-block;
+    opacity: 1;
+}
+
+#portfolio .item.filtered-hidden {
+    display: none;
+    opacity: 0;
+}
+
+/* ===================== PRICING ADVERTISEMENT CAROUSEL ===================== */
+
+.pricing-carousel {
+    max-width: 900px;
+    margin: 0 auto 40px auto;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.pricing-carousel .carousel-inner .item {
+    position: relative;
+    height: 380px;
+}
+
+.pricing-carousel .carousel-inner .item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.pricing-carousel-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(184, 24, 24, 0.9);
+    color: #fff;
+    padding: 15px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pricing-carousel-caption h3 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.pricing-carousel-price {
+    font-size: 26px;
+    font-weight: bold;
+}
+
+/* ===================== NAVBAR SPACING FIX (username + logout) ===================== */
+
+.nav-user-info {
+    margin-right: 18px;
+}
+
+.nav-user-info span {
+    display: inline-block;
+}
+
+.nav-user-info i {
+    margin-right: 6px;
+}
+
+.logout-form {
+    margin-left: 4px;
+}
