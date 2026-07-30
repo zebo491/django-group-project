@@ -1,6 +1,7 @@
 import json
 from datetime import datetime
 
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST, require_http_methods
@@ -130,3 +131,5 @@ def check_working_hours(request):
         "open_time": wh.open_time.strftime("%H:%M") if wh.open_time else None,
         "close_time": wh.close_time.strftime("%H:%M") if wh.close_time else None,
     })
+
+
